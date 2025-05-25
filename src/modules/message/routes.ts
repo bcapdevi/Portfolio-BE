@@ -17,4 +17,22 @@ export default async function messageRoutes(fastify: FastifyInstance) {
       return reply.code(201).send(message)
     }
   })
+
+  // Get all messages
+  fastify.get('/messages', {
+    schema: {
+      response: {
+        200: {
+          type: 'array',
+          items: messageResponseSchema
+        }
+      }
+    },
+    handler: async (request, reply) => {
+      const messages = await Message.findAll({
+        order: [['created_at', 'DESC']]
+      })
+      return reply.send(messages)
+    }
+  })
 }
