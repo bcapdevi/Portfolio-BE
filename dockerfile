@@ -4,6 +4,9 @@ FROM node:18-alpine
 # Set working directory in the container
 WORKDIR /app
 
+# Copy package.json and package-lock.json first to leverage Docker cache
+COPY package*.json ./
+
 #define build arguments
 ARG NODE_ENV
 ARG PORT
@@ -29,9 +32,6 @@ ENV DB_USER=$DB_USER
 ENV DB_PASSWORD=$DB_PASSWORD
 ENV DB_NAME=$DB_NAME
 ENV DB_SSL=$DB_SSL
-
-# Copy package.json and package-lock.json first to leverage Docker cache
-COPY package*.json ./
 
 # Install dependencies
 RUN npm install
