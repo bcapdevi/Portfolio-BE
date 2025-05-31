@@ -1,7 +1,9 @@
 import { FastifyInstance } from 'fastify'
 import Message from '../../models/message'
 import { messageSchema, messageResponseSchema } from './schema'
+import { createLogger } from '../../utils/logger'
 
+const logger = createLogger('message-routes')
 
 export default async function messageRoutes(fastify: FastifyInstance) {
   // Create a new message
@@ -13,8 +15,31 @@ export default async function messageRoutes(fastify: FastifyInstance) {
       }
     },
     handler: async (request, reply) => {
-      const message = await Message.create(request.body as any)
-      return reply.code(201).send(message)
+      try {
+        const message = await Message.create(request.body as any)
+
+        // Send notification email
+        await fastify.mailer.sendMail({
+          from: process.env.GMAIL_ADDRESS,
+          to: process.env.NOTIFICATION_EMAIL,
+          subject: 'New Portfolio Message',
+          html: `
+            <h2>New Message from Portfolio</h2>
+            <p><strong>From:</strong> ${message.name} (${message.email})</p>
+            <p><strong>Message:</strong></p>
+            <p>${message.message}</p>
+            <p><small>Sent at: ${message.created_at}</small></p>
+          `
+        })
+
+        logger.info('Email notification sent for message:', { messageId: message.id })
+        return reply.code(201).send(message)
+      } catch (error) {
+        logger.error('Failed to process message:', error)
+        return reply.code(500).send({ 
+          error: 'Failed to process message' 
+        })
+      }
     }
   })
 

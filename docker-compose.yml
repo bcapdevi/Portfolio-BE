@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   app:
     build: 
@@ -11,6 +12,11 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-portfolio}
       - DB_NAME=${DB_NAME:-portfolio}
       - DB_SSL=false
+      - GMAIL_ADDRESS=${GMAIL_ADDRESS}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REFRESH_TOKEN=${GOOGLE_REFRESH_TOKEN}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
